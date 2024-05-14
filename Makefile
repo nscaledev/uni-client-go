@@ -11,3 +11,10 @@ LINT_VERSION=v1.57.1
 lint: $(GENDIR)
 	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@$(LINT_VERSION)
 	$(GOBIN)/golangci-lint run ./...
+
+# Perform license checking.
+# This must pass or you will be denied by CI.
+.PHONY: license
+license:
+	@go install github.com/unikorn-cloud/core/hack/check_license@main
+	$(GOBIN)/check_license
