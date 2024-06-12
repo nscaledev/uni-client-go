@@ -33,8 +33,9 @@ import (
 	"github.com/spf13/pflag"
 	"golang.org/x/oauth2"
 
-	identityapi "github.com/unikorn-cloud/identity/pkg/generated"
-	kubernetesapi "github.com/unikorn-cloud/unikorn/pkg/server/generated"
+	identityapi "github.com/unikorn-cloud/identity/pkg/openapi"
+	regionapi "github.com/unikorn-cloud/region/pkg/openapi"
+	kubernetesapi "github.com/unikorn-cloud/unikorn/pkg/openapi"
 )
 
 const (
@@ -56,6 +57,8 @@ var (
 type Client struct {
 	// IdentityEndpoint is the identity service endpoint.
 	IdentityEndpoint string
+	// RegionEndpoint is the region service endpoint.
+	RegionEndpoint string
 	// KubernetesEndpoint is the kubernetes service endpoint.
 	KubernetesEndpoint string
 	// TokenFile is an absolute path to the token file.
@@ -78,6 +81,7 @@ func New() *Client {
 // This MUST be called after New() essentially.
 func (c *Client) AddFlags(f *pflag.FlagSet) {
 	f.StringVar(&c.IdentityEndpoint, "identity-endpoint", c.IdentityEndpoint, "The location of the OIDC issuer/discovery and identity services.")
+	f.StringVar(&c.RegionEndpoint, "region-endpoint", c.RegionEndpoint, "The location of the region service.")
 	f.StringVar(&c.KubernetesEndpoint, "kubernetes-endpoint", c.IdentityEndpoint, "The location of the Kubernetes service.")
 	f.StringVar(&c.TokenFile, "token-file", c.TokenFile, "Where to source the access token from.")
 	f.StringVar(&c.CAFile, "ca-file", c.CAFile, "CA file for issuer verification.")
@@ -230,7 +234,24 @@ func (c *Client) Identity(ctx context.Context) (*identityapi.ClientWithResponses
 	return identity, nil
 }
 
-// Kubernetes returns a new identity client.
+// Region returns a new region client.
+// NOTE: While we handle race conditions when creating clients, we cannot make the same
+// guarantees when actually rotating tokens via the API calls, so treat them as non-reentrant.
+func (c *Client) Region(ctx context.Context) (*regionapi.ClientWithResponses, error) {
+	client, err := c.client(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	region, err := regionapi.NewClientWithResponses(c.RegionEndpoint, regionapi.WithHTTPClient(client))
+	if err != nil {
+		return nil, err
+	}
+
+	return region, nil
+}
+
+// Kubernetes returns a new kubernetes client.
 // NOTE: While we handle race conditions when creating clients, we cannot make the same
 // guarantees when actually rotating tokens via the API calls, so treat them as non-reentrant.
 func (c *Client) Kubernetes(ctx context.Context) (*kubernetesapi.ClientWithResponses, error) {

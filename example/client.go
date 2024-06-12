@@ -36,6 +36,7 @@ func main() {
 	// brand if you aren't a fan of unicorns.  Shame on you.
 	client := client.New()
 	client.IdentityEndpoint = "https://identity.spjmurray.co.uk"
+	client.RegionEndpoint = "https://region.spjmurray.co.uk"
 	client.KubernetesEndpoint = "https://api.spjmurray.co.uk"
 	client.TokenFile = filepath.Join(os.Getenv("HOME"), ".config/unikorn/token")
 
@@ -75,6 +76,6 @@ func main() {
 	}
 
 	for _, organization := range *response.JSON200 {
-		fmt.Println(organization.Name)
+		fmt.Println(organization.Metadata.Name)
 	}
 }
