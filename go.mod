@@ -6,8 +6,8 @@ require (
 	github.com/coreos/go-oidc/v3 v3.10.0
 	github.com/spf13/pflag v1.0.5
 	github.com/unikorn-cloud/identity v0.2.6
+	github.com/unikorn-cloud/kubernetes v0.2.12
 	github.com/unikorn-cloud/region v0.1.4
-	github.com/unikorn-cloud/unikorn v0.2.10
 	golang.org/x/oauth2 v0.20.0
 )
 

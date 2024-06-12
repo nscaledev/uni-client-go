@@ -35,7 +35,7 @@ import (
 
 	identityapi "github.com/unikorn-cloud/identity/pkg/openapi"
 	regionapi "github.com/unikorn-cloud/region/pkg/openapi"
-	kubernetesapi "github.com/unikorn-cloud/unikorn/pkg/openapi"
+	kubernetesapi "github.com/unikorn-cloud/kubernetes/pkg/openapi"
 )
 
 const (
