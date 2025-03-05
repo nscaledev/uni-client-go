@@ -6,8 +6,6 @@ on:
     - synchronize
     - reopened
     - ready_for_review
-env:
-  GO_VERSION: 1.22.1
 jobs:
   Static:
     runs-on: ubuntu-latest
@@ -17,7 +15,7 @@ jobs:
     - name: Setup Go
       uses: actions/setup-go@v3
       with:
-        go-version: ${{ env.GO_VERSION }}
+        go-version-file: go.mod
         cache: true
     - name: License Checker
       run: make license
@@ -29,7 +27,7 @@ jobs:
     - name: Setup Go
       uses: actions/setup-go@v3
       with:
-        go-version: ${{ env.GO_VERSION }}
+        go-version-file: go.mod
         cache: true
     - name: Golang CI/Helm Lint
       run: make lint
