@@ -1,5 +1,5 @@
 /*
-Copyright 2024 the Unikorn Authors.
+Copyright 2024-2025 the Unikorn Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -43,16 +43,6 @@ func main() {
 	// Allow flags to override these values.
 	client.AddFlags(pflag.CommandLine)
 	pflag.Parse()
-
-	// Shutdown should be called at least once to ensure tokens are
-	// flushed to disk.  If you are running this in a CI/CD environment
-	// then you need to ensure that file is stashed somewhere persistent
-	// e.g. blob storage.
-	defer func() {
-		if err := client.Shutdown(); err != nil {
-			fmt.Println("WARN: unable to shutdown client:", err)
-		}
-	}()
 
 	// Do some work.  Be careful with API calls, they aren't reentrant by default
 	// so you may risk races with concurrent token refresh unless the APIs are

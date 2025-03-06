@@ -1,5 +1,5 @@
 /*
-Copyright 2024 the Unikorn Authors.
+Copyright 2024-2025 the Unikorn Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -20,27 +20,18 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
-	"encoding/json"
 	"encoding/pem"
 	"errors"
 	"fmt"
 	"net/http"
 	"os"
-	"sync"
-	"time"
+	"strings"
 
-	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/spf13/pflag"
-	"golang.org/x/oauth2"
 
 	identityapi "github.com/unikorn-cloud/identity/pkg/openapi"
-	regionapi "github.com/unikorn-cloud/region/pkg/openapi"
 	kubernetesapi "github.com/unikorn-cloud/kubernetes/pkg/openapi"
-)
-
-const (
-	// redirectURL is made up, we cannot redirect from the CLI!
-	redirectURL = "https://identity-client.unikorn-cloud.org/oauth2/callback"
+	regionapi "github.com/unikorn-cloud/region/pkg/openapi"
 )
 
 var (
@@ -65,11 +56,6 @@ type Client struct {
 	TokenFile string
 	// CAFile is the non-system dwpublic CA file e.g. Let's Encrypt Staging.
 	CAFile string
-	// tokenSource caches the token source so we can save a refreshed token
-	// for the next invocation.
-	tokenSource oauth2.TokenSource
-	// lock for the tokenSource.
-	lock sync.Mutex
 }
 
 // New creates a new client.
@@ -88,27 +74,13 @@ func (c *Client) AddFlags(f *pflag.FlagSet) {
 }
 
 // loadTokenFile attempts to get a predefined token file from the local file system.
-func (c *Client) loadTokenFile() (*oauth2.Token, error) {
+func (c *Client) loadTokenFile() (string, error) {
 	data, err := os.ReadFile(c.TokenFile)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	token := &oauth2.Token{}
-
-	if err := json.Unmarshal(data, &token); err != nil {
-		return nil, err
-	}
-
-	// IANA only specifies "expires_in", and that's relative to the authentication
-	// call, not useful at all for offline use, so we force the refresh of the token
-	// when a new token is detected.
-	// See: https://www.iana.org/assignments/oauth-parameters/oauth-parameters.xhtml)
-	if token.Expiry.IsZero() {
-		token.Expiry = time.Now()
-	}
-
-	return token, nil
+	return strings.TrimSpace(string(data)), nil
 }
 
 // tlsClientConfig either loads the provided TLS CA certificate and returns a new
@@ -149,68 +121,27 @@ func (c *Client) tlsClientConfig() (*tls.Config, error) {
 	return config, nil
 }
 
-// setupTokenSource create and cache the token source, so we only have one version
-// to worry about when extracting tokens.
-func (c *Client) setupTokenSource(ctx context.Context, tlsClientConfig *tls.Config) error {
-	c.lock.Lock()
-	defer c.lock.Unlock()
-
-	if c.tokenSource != nil {
-		return nil
-	}
-
-	client := &http.Client{
-		Transport: &http.Transport{
-			TLSClientConfig: tlsClientConfig,
-		},
-	}
-
-	ctx = context.WithValue(ctx, oauth2.HTTPClient, client)
-	ctx = oidc.ClientContext(ctx, client)
-
-	// Perform OIDC service discovery and configure oauth2.
-	provider, err := oidc.NewProvider(ctx, c.IdentityEndpoint)
-	if err != nil {
-		return err
-	}
-
-	config := &oauth2.Config{
-		Endpoint:    provider.Endpoint(),
-		RedirectURL: redirectURL,
-	}
-
-	// Pre-populate the oauth2 token from our local file.
+func (c *Client) mutateRequest(ctx context.Context, r *http.Request) error {
 	token, err := c.loadTokenFile()
 	if err != nil {
 		return err
 	}
 
-	c.tokenSource = config.TokenSource(ctx, token)
+	r.Header.Set("Authorization", "bearer "+token)
 
 	return nil
 }
 
-// client returns a new http client that will transparently do oauth2 header
-// injection and refresh token updates.
 func (c *Client) client(ctx context.Context) (*http.Client, error) {
-	// Handle non-system CA certificates for the OIDC discovery protocol
-	// and oauth2 token refresh. This will return nil if none is specified
-	// and default to the system roots.
+	// Handle non-system CA certificates.
 	tlsClientConfig, err := c.tlsClientConfig()
 	if err != nil {
 		return nil, err
 	}
 
-	if err := c.setupTokenSource(ctx, tlsClientConfig); err != nil {
-		return nil, err
-	}
-
 	client := &http.Client{
-		Transport: &oauth2.Transport{
-			Source: c.tokenSource,
-			Base: &http.Transport{
-				TLSClientConfig: tlsClientConfig,
-			},
+		Transport: &http.Transport{
+			TLSClientConfig: tlsClientConfig,
 		},
 	}
 
@@ -226,7 +157,7 @@ func (c *Client) Identity(ctx context.Context) (*identityapi.ClientWithResponses
 		return nil, err
 	}
 
-	identity, err := identityapi.NewClientWithResponses(c.IdentityEndpoint, identityapi.WithHTTPClient(client))
+	identity, err := identityapi.NewClientWithResponses(c.IdentityEndpoint, identityapi.WithHTTPClient(client), identityapi.WithRequestEditorFn(c.mutateRequest))
 	if err != nil {
 		return nil, err
 	}
@@ -266,32 +197,4 @@ func (c *Client) Kubernetes(ctx context.Context) (*kubernetesapi.ClientWithRespo
 	}
 
 	return kubernetes, nil
-}
-
-// Shutdown must be called at least once to flush rotated keys to disk.
-func (c *Client) Shutdown() error {
-	c.lock.Lock()
-	defer c.lock.Unlock()
-
-	if c.tokenSource == nil {
-		return nil
-	}
-
-	token, err := c.tokenSource.Token()
-	if err != nil {
-		return err
-	}
-
-	data, err := json.Marshal(token)
-	if err != nil {
-		return err
-	}
-
-	if err := os.WriteFile(c.TokenFile, data, 0600); err != nil {
-		return err
-	}
-
-	c.tokenSource = nil
-
-	return nil
 }
