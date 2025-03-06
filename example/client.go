@@ -54,7 +54,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	response, err := identity.GetApiV1OrganizationsWithResponse(ctx)
+	response, err := identity.GetApiV1OrganizationsWithResponse(ctx, nil)
 	if err != nil {
 		fmt.Println("FATAL: unable to read organizations:", err)
 		os.Exit(1)

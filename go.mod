@@ -4,9 +4,10 @@ go 1.23.5
 
 require (
 	github.com/spf13/pflag v1.0.6
-	github.com/unikorn-cloud/identity v0.2.58
-	github.com/unikorn-cloud/kubernetes v0.2.58
-	github.com/unikorn-cloud/region v0.1.49
+	github.com/unikorn-cloud/compute v0.1.3
+	github.com/unikorn-cloud/identity v0.2.59
+	github.com/unikorn-cloud/kubernetes v0.2.59
+	github.com/unikorn-cloud/region v0.1.50
 )
 
 require (
@@ -25,9 +26,7 @@ require (
 	github.com/oasdiff/yaml v0.0.0-20241214135536-5f7845c759c8 // indirect
 	github.com/oasdiff/yaml3 v0.0.0-20241214160948-977117996672 // indirect
 	github.com/perimeterx/marshmallow v1.1.5 // indirect
-	github.com/unikorn-cloud/core v0.1.90 // indirect
-	golang.org/x/sys v0.30.0 // indirect
-	golang.org/x/text v0.22.0 // indirect
+	github.com/unikorn-cloud/core v0.1.91 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	sigs.k8s.io/controller-runtime v0.20.2 // indirect
 )
