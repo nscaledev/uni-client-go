@@ -1,4 +1,4 @@
-# UNI Go Client
+# Go Client
 
 Provides API level access for CLI tooling.
 
