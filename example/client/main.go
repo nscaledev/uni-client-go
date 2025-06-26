@@ -31,17 +31,19 @@ import (
 func main() {
 	ctx := context.Background()
 
+	tokenSource := client.NewFileTokenSource()
+	tokenSource.TokenFile = filepath.Join(os.Getenv("HOME"), ".config/unikorn/token")
+
 	// Initialize the client with some default values.
 	// This allows you to tailor to your specific environment and
 	// brand if you aren't a fan of unicorns.  Shame on you.
-	client := client.New()
+	client := client.New(tokenSource)
 	client.IdentityEndpoint = "https://identity.spjmurray.co.uk"
 	client.RegionEndpoint = "https://region.spjmurray.co.uk"
 	client.KubernetesEndpoint = "https://api.spjmurray.co.uk"
-	client.TokenFile = filepath.Join(os.Getenv("HOME"), ".config/unikorn/token")
 
-	// Allow flags to override these values.
 	client.AddFlags(pflag.CommandLine)
+
 	pflag.Parse()
 
 	// Do some work.  Be careful with API calls, they aren't reentrant by default
@@ -60,7 +62,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if response.HTTPResponse.StatusCode != http.StatusOK {
+	if response.StatusCode() != http.StatusOK {
 		fmt.Println("FATAL: unexpected status code:", response.HTTPResponse.StatusCode)
 		os.Exit(1)
 	}
