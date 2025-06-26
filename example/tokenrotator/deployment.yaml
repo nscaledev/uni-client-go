@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tokenrotator
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: tokenrotator
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - list
+  - watch
+  - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: tokenrotator
+subjects:
+- kind: ServiceAccount
+  name: tokenrotator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: tokenrotator
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tokenrotator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tokenrotator
+  template:
+    metadata:
+      labels:
+        app: tokenrotator
+    spec:
+      containers:
+      - name: tokenrotator
+        image: ghcr.io/unikorn-cloud/tokenrotator:v0.0.1
+        args:
+        - --namespace=default
+        - --identity-endpoint=https://identity.unikorn-cloud.org
+      securityContext:
+          readOnlyRootFilesystem: true
+      serviceAccountName: tokenrotator
+      securityContext:
+        runAsNonRoot: true

@@ -25,7 +25,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"strings"
 
 	"github.com/spf13/pflag"
 
@@ -55,36 +54,29 @@ type Client struct {
 	KubernetesEndpoint string
 	// ComputeEndpoint is the compute service endpoint.
 	ComputeEndpoint string
-	// TokenFile is an absolute path to the token file.
-	TokenFile string
-	// CAFile is the non-system dwpublic CA file e.g. Let's Encrypt Staging.
+	// CAFile is the non-system public CA file e.g. Let's Encrypt Staging.
 	CAFile string
+	// token is an interface used to obtain the current access token.
+	token TokenSource
 }
 
 // New creates a new client.
-func New() *Client {
-	return &Client{}
+func New(token TokenSource) *Client {
+	return &Client{
+		token: token,
+	}
 }
 
 // AddFlags sets default flags and enables the rest to be populated from the CLI.
 // This MUST be called after New() essentially.
 func (c *Client) AddFlags(f *pflag.FlagSet) {
+	c.token.AddFlags(f)
+
 	f.StringVar(&c.IdentityEndpoint, "identity-endpoint", c.IdentityEndpoint, "The location of the OIDC issuer/discovery and identity services.")
 	f.StringVar(&c.RegionEndpoint, "region-endpoint", c.RegionEndpoint, "The location of the region service.")
 	f.StringVar(&c.KubernetesEndpoint, "kubernetes-endpoint", c.IdentityEndpoint, "The location of the Kubernetes service.")
 	f.StringVar(&c.ComputeEndpoint, "compute-endpoint", c.IdentityEndpoint, "The location of the compute service.")
-	f.StringVar(&c.TokenFile, "token-file", c.TokenFile, "Where to source the access token from.")
 	f.StringVar(&c.CAFile, "ca-file", c.CAFile, "CA file for issuer verification.")
-}
-
-// loadTokenFile attempts to get a predefined token file from the local file system.
-func (c *Client) loadTokenFile() (string, error) {
-	data, err := os.ReadFile(c.TokenFile)
-	if err != nil {
-		return "", err
-	}
-
-	return strings.TrimSpace(string(data)), nil
 }
 
 // tlsClientConfig either loads the provided TLS CA certificate and returns a new
@@ -126,7 +118,7 @@ func (c *Client) tlsClientConfig() (*tls.Config, error) {
 }
 
 func (c *Client) mutateRequest(ctx context.Context, r *http.Request) error {
-	token, err := c.loadTokenFile()
+	token, err := c.token.Token()
 	if err != nil {
 		return err
 	}
