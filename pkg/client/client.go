@@ -151,7 +151,12 @@ func (c *Client) Identity(ctx context.Context) (*identityapi.ClientWithResponses
 		return nil, err
 	}
 
-	identity, err := identityapi.NewClientWithResponses(c.IdentityEndpoint, identityapi.WithHTTPClient(client), identityapi.WithRequestEditorFn(c.mutateRequest))
+	options := []identityapi.ClientOption{
+		identityapi.WithHTTPClient(client),
+		identityapi.WithRequestEditorFn(c.mutateRequest),
+	}
+
+	identity, err := identityapi.NewClientWithResponses(c.IdentityEndpoint, options...)
 	if err != nil {
 		return nil, err
 	}
@@ -166,7 +171,12 @@ func (c *Client) Region(ctx context.Context) (*regionapi.ClientWithResponses, er
 		return nil, err
 	}
 
-	region, err := regionapi.NewClientWithResponses(c.RegionEndpoint, regionapi.WithHTTPClient(client))
+	options := []regionapi.ClientOption{
+		regionapi.WithHTTPClient(client),
+		regionapi.WithRequestEditorFn(c.mutateRequest),
+	}
+
+	region, err := regionapi.NewClientWithResponses(c.RegionEndpoint, options...)
 	if err != nil {
 		return nil, err
 	}
@@ -181,7 +191,12 @@ func (c *Client) Kubernetes(ctx context.Context) (*kubernetesapi.ClientWithRespo
 		return nil, err
 	}
 
-	kubernetes, err := kubernetesapi.NewClientWithResponses(c.KubernetesEndpoint, kubernetesapi.WithHTTPClient(client))
+	options := []kubernetesapi.ClientOption{
+		kubernetesapi.WithHTTPClient(client),
+		kubernetesapi.WithRequestEditorFn(c.mutateRequest),
+	}
+
+	kubernetes, err := kubernetesapi.NewClientWithResponses(c.KubernetesEndpoint, options...)
 	if err != nil {
 		return nil, err
 	}
@@ -196,7 +211,12 @@ func (c *Client) Compute(ctx context.Context) (*computeapi.ClientWithResponses, 
 		return nil, err
 	}
 
-	compute, err := computeapi.NewClientWithResponses(c.ComputeEndpoint, computeapi.WithHTTPClient(client))
+	options := []computeapi.ClientOption{
+		computeapi.WithHTTPClient(client),
+		computeapi.WithRequestEditorFn(c.mutateRequest),
+	}
+
+	compute, err := computeapi.NewClientWithResponses(c.ComputeEndpoint, options...)
 	if err != nil {
 		return nil, err
 	}
