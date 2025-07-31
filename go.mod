@@ -4,10 +4,10 @@ go 1.24.2
 
 require (
 	github.com/spf13/pflag v1.0.6
-	github.com/unikorn-cloud/compute v1.3.0
-	github.com/unikorn-cloud/identity v1.3.0
-	github.com/unikorn-cloud/kubernetes v1.3.0
-	github.com/unikorn-cloud/region v1.3.0
+	github.com/unikorn-cloud/compute v1.4.0
+	github.com/unikorn-cloud/identity v1.4.0
+	github.com/unikorn-cloud/kubernetes v1.4.0
+	github.com/unikorn-cloud/region v1.4.0
 	k8s.io/api v0.33.1
 	k8s.io/client-go v0.33.1
 	k8s.io/klog/v2 v2.130.1
@@ -43,15 +43,15 @@ require (
 	github.com/oasdiff/yaml v0.0.0-20250309154309-f31be36b4037 // indirect
 	github.com/oasdiff/yaml3 v0.0.0-20250309153720-d2182401db90 // indirect
 	github.com/perimeterx/marshmallow v1.1.5 // indirect
-	github.com/unikorn-cloud/core v1.3.0 // indirect
+	github.com/unikorn-cloud/core v1.4.0 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
-	golang.org/x/net v0.40.0 // indirect
+	golang.org/x/net v0.41.0 // indirect
 	golang.org/x/oauth2 v0.30.0 // indirect
-	golang.org/x/sys v0.33.0 // indirect
-	golang.org/x/term v0.32.0 // indirect
-	golang.org/x/text v0.25.0 // indirect
+	golang.org/x/sys v0.34.0 // indirect
+	golang.org/x/term v0.33.0 // indirect
+	golang.org/x/text v0.27.0 // indirect
 	golang.org/x/time v0.11.0 // indirect
 	google.golang.org/protobuf v1.36.6 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
