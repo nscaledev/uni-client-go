@@ -40,7 +40,8 @@ func main() {
 	client := client.New(tokenSource)
 	client.IdentityEndpoint = "https://identity.spjmurray.co.uk"
 	client.RegionEndpoint = "https://region.spjmurray.co.uk"
-	client.KubernetesEndpoint = "https://api.spjmurray.co.uk"
+	client.ComputeEndpoint = "https://compute.spjmurray.co.uk"
+	client.KubernetesEndpoint = "https://kubernetes.spjmurray.co.uk"
 
 	client.AddFlags(pflag.CommandLine)
 
