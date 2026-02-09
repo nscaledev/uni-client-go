@@ -1,13 +1,13 @@
 module github.com/unikorn-cloud/client-go
 
-go 1.24.2
+go 1.24.3
 
 require (
 	github.com/spf13/pflag v1.0.10
-	github.com/unikorn-cloud/compute v1.13.0
-	github.com/unikorn-cloud/identity v1.13.0
-	github.com/unikorn-cloud/kubernetes v1.13.0
-	github.com/unikorn-cloud/region v1.13.0
+	github.com/unikorn-cloud/compute v1.14.0
+	github.com/unikorn-cloud/identity v1.14.0
+	github.com/unikorn-cloud/kubernetes v1.14.0
+	github.com/unikorn-cloud/region v1.14.0
 	k8s.io/api v0.34.1
 	k8s.io/client-go v0.34.1
 	k8s.io/klog/v2 v2.130.1
@@ -21,7 +21,7 @@ require (
 	github.com/evanphx/json-patch/v5 v5.9.11 // indirect
 	github.com/fxamacker/cbor/v2 v2.9.0 // indirect
 	github.com/getkin/kin-openapi v0.133.0 // indirect
-	github.com/go-chi/chi/v5 v5.2.3 // indirect
+	github.com/go-chi/chi/v5 v5.2.4 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/zapr v1.3.0 // indirect
 	github.com/go-openapi/jsonpointer v0.22.1 // indirect
@@ -42,7 +42,6 @@ require (
 	github.com/google/gnostic-models v0.7.0 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
-	github.com/gorilla/mux v1.8.1 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/mailru/easyjson v0.9.1 // indirect
@@ -55,7 +54,7 @@ require (
 	github.com/oasdiff/yaml3 v0.0.0-20250309153720-d2182401db90 // indirect
 	github.com/perimeterx/marshmallow v1.1.5 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
-	github.com/unikorn-cloud/core v1.13.0 // indirect
+	github.com/unikorn-cloud/core v1.14.0 // indirect
 	github.com/woodsbury/decimal128 v1.4.0 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
